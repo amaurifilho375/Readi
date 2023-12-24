@@ -11,6 +11,7 @@ exports.decodeToken = async (token) => {
 };
 
 exports.authorize = function (req, res, next) {
+  console.log("autorizandoo");
   var token =
     req.body.token || req.query.token || req.headers["x-access-token"];
 
@@ -19,7 +20,7 @@ exports.authorize = function (req, res, next) {
       message: "Acesso Restrito",
     });
   } else {
-    jwt.verify(token, global.SALT_KEY, function (error, decoded) {
+    jwt.verify(token, "SEGREDO_JWT_USER", function (error, decoded) {
       if (error) {
         res.status(401).json({
           message: "Token Inválido",
