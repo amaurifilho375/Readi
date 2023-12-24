@@ -134,16 +134,23 @@ const RequestController = {
       if (!user) {
         return res.status(400).json({ error: "User not found" });
       }
-
+      /*
       const request = await Request.findOne({
         where: { id: request_id, user_id },
       });
+      */
+      const request = await Request.findByPk(request_id);
 
       if (!request) {
         return res.status(400).json({ error: "Request not found" });
       }
 
-      if (user.role === "admin") {
+      if (
+        (newStatus === "pendente" ||
+          newStatus === "negado" ||
+          newStatus === "emitida") &&
+        user.role === "admin"
+      ) {
         request.status = newStatus;
         await request.save();
 
@@ -151,9 +158,11 @@ const RequestController = {
           .status(200)
           .json({ message: `Request status updated to ${newStatus}` });
       } else if (
-        (request.status === "pendente" || request.status === "negada") &&
+        (newStatus === "pendente" || newStatus === "negada") &&
         user.role === "operator"
       ) {
+        request.status = newStatus;
+        await request.save();
         return res
           .status(200)
           .json({ message: `Request status updated to ${newStatus}` });
