@@ -1,7 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 
-class Client extends Model {
+class Request extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -49,11 +49,15 @@ class Client extends Model {
           type: DataTypes.STRING,
           // O campo anexoDocumento pode ser nulo, pois é opcional
         },
+        status: {
+          type: DataTypes.STRING,
+          // O campo anexoDocumento pode ser nulo, pois é opcional
+        },
       },
       {
         sequelize,
-        modelName: "Client", // Corrigido para refletir o nome do modelo
-        tableName: "clients",
+        modelName: "Request", // Corrigido para refletir o nome do modelo
+        tableName: "requests",
         timestamps: true,
         // underscored: true,
       }
@@ -62,7 +66,8 @@ class Client extends Model {
 
   static associate(models) {
     // Define as associações, se houver
+    this.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
   }
 }
 
-module.exports = Client;
+module.exports = Request;

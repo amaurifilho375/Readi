@@ -9,12 +9,12 @@ app.use(bodyParser.json());
 
 // Rotas
 const authRoutes = require("./routes/authRoutes");
-const clienteRoutes = require("./routes/clientRoute");
+const requestRoute = require("./routes/requestRoute");
 //const operadorRoutes = require("./routes/operadorRoutes");
 //const administradorRoutes = require("./routes/administradorRoutes");
 
 app.use("/auth", authRoutes);
-app.use("/cliente", clienteRoutes);
+app.use("/user", requestRoute);
 //app.use("/operador", operadorRoutes);
 //app.use("/administrador", administradorRoutes);
 

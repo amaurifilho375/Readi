@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 
 const register = async (req, res) => {
   const { name, email, password, role = "client" } = req.body;
-  console.log("chegou");
 
   if (!name || !email || !password) {
     return res

@@ -35,6 +35,7 @@ class User extends Model {
 
   static associate(models) {
     // Define as associações, se houver
+    this.hasMany(models.Request, { foreignKey: "user_id", as: "requests" });
   }
 }
 

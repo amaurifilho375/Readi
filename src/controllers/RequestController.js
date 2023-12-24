@@ -1,6 +1,7 @@
-const Client = require("../models/Client"); // Importe o modelo do usuário aqui
+const Request = require("../models/Request"); // Importe o modelo do usuário aqui
+const User = require("../models/User");
 
-const ClienteController = {
+const RequestController = {
   async solicitarEmissaoCertidao(req, res) {
     try {
       console.log("respostas:", req.body);
@@ -18,6 +19,14 @@ const ClienteController = {
         anexo_documento,
       } = req.body;
 
+      const { user_id } = req.params;
+
+      const user = await User.findByPk(user_id);
+
+      if (!user) {
+        return res.status(400).json({ error: "user not found" });
+      }
+
       // Verificar se todos os campos necessários foram recebidos
       if (!nome_completo || !cpf || !telefone /* outros campos */) {
         return res.status(400).json({
@@ -25,7 +34,7 @@ const ClienteController = {
         });
       }
 
-      const novaSolicitacao = await Client.create({
+      const novaSolicitacao = await Request.create({
         nome_completo,
         cpf,
         telefone,
@@ -37,6 +46,8 @@ const ClienteController = {
         cep,
         certidao,
         anexo_documento,
+        user_id,
+        status: "pendente",
         // outros campos...
       });
 
@@ -60,10 +71,15 @@ const ClienteController = {
 
   async buscarSolicitacoes(req, res) {
     try {
-      // Lógica para buscar as solicitações do cliente no banco de dados
-      const solicitacoes = await Client.findAll(/* condições de busca */);
+      const { user_id } = req.params;
+      const user = await User.findByPk(user_id, {
+        include: { association: "requests" },
+      });
 
-      res.status(200).json({ solicitacoes });
+      // Lógica para buscar as solicitações do Requeste no banco de dados
+      //const solicitacoes = await Request.findAll(/* condições de busca */);
+
+      res.status(200).json({ user });
     } catch (error) {
       console.error(error);
       res
@@ -74,7 +90,7 @@ const ClienteController = {
 
   async acessarMenus(req, res) {
     try {
-      // Esta rota pode ser acessada apenas por usuários CLIENTE
+      // Esta rota pode ser acessada apenas por usuários RequestE
       res.status(200).json({
         menus: ["SOLICITAR EMISSÃO DE CERTIDÃO", "BUSCAR SOLICITAÇÕES"],
       });
@@ -85,4 +101,4 @@ const ClienteController = {
   },
 };
 
-module.exports = ClienteController;
+module.exports = RequestController;
