@@ -27,8 +27,7 @@ const RequestController = {
         return res.status(400).json({ error: "user not found" });
       }
 
-      // Verificar se todos os campos necessários foram recebidos
-      if (!nome_completo || !cpf || !telefone /* outros campos */) {
+      if (!nome_completo || !cpf || !telefone) {
         return res.status(400).json({
           message: "Por favor, preencha todos os campos obrigatórios.",
         });
@@ -48,17 +47,13 @@ const RequestController = {
         anexo_documento,
         user_id,
         status: "pendente",
-        // outros campos...
       });
 
-      // Se a criação foi bem-sucedida, novaSolicitacao conterá o registro criado
       if (novaSolicitacao) {
-        // Operação realizada com sucesso
         res
           .status(200)
           .json({ message: "Registro criado com sucesso.", novaSolicitacao });
       } else {
-        // Tratar cenário em que não há retorno do objeto criado
         res.status(400).json({ message: "Não foi possível criar o registro." });
       }
     } catch (error) {
@@ -75,9 +70,6 @@ const RequestController = {
       const user = await User.findByPk(user_id, {
         include: { association: "requests" },
       });
-
-      // Lógica para buscar as solicitações do Requeste no banco de dados
-      //const solicitacoes = await Request.findAll(/* condições de busca */);
 
       res.status(200).json({ user });
     } catch (error) {
@@ -96,14 +88,18 @@ const RequestController = {
         return res.status(400).json({ error: "User not found" });
       }
 
-      console.log("usuario:", user.role);
+      let request = "";
 
-      const request = await Request.findOne({
-        where: { id: request_id, user_id },
-      });
+      if (user.role === "admin") {
+        request = await Request.findByPk(request_id);
+      } else {
+        request = await Request.findOne({
+          where: { id: request_id, user_id },
+        });
+      }
 
       if (!request) {
-        return res.status(400).json({ error: "Request not found" });
+        return res.status(400).json({ error: "you do not have this request" });
       }
 
       if (
@@ -134,11 +130,7 @@ const RequestController = {
       if (!user) {
         return res.status(400).json({ error: "User not found" });
       }
-      /*
-      const request = await Request.findOne({
-        where: { id: request_id, user_id },
-      });
-      */
+
       const request = await Request.findByPk(request_id);
 
       if (!request) {
@@ -178,15 +170,35 @@ const RequestController = {
     }
   },
 
-  async acessarMenus(req, res) {
+  async viewAllRequests(req, res) {
     try {
-      // Esta rota pode ser acessada apenas por usuários RequestE
-      res.status(200).json({
-        menus: ["SOLICITAR EMISSÃO DE CERTIDÃO", "BUSCAR SOLICITAÇÕES"],
-      });
+      const { user_id } = req.params;
+      const user = await User.findByPk(user_id);
+
+      if (!user) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      let requests = [];
+
+      if (user.role === "admin") {
+        requests = await Request.findAll();
+      } else if (user.role === "operator") {
+        requests = await Request.findAll({
+          include: {
+            model: User,
+            as: "user",
+            where: { role: "client" },
+          },
+        });
+      } else {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      res.status(200).json({ requests });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Ocorreu um erro ao acessar os menus." });
+      res.status(500).json({ message: "Error fetching requests" });
     }
   },
 };

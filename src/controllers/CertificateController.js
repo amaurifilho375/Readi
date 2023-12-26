@@ -1,6 +1,5 @@
 const Certificate = require("../models/Certificate");
 
-// Função para criar uma nova solicitação de certidão
 async function criarCertidao(certidaoData) {
   try {
     const certificate = await Certificate.create(certidaoData);
@@ -10,7 +9,6 @@ async function criarCertidao(certidaoData) {
   }
 }
 
-// Função para buscar solicitações de certidão de um usuário específico
 async function buscarSolicitacoesUsuario(usuarioId) {
   try {
     const solicitacoes = await Certificate.findAll({
@@ -22,9 +20,7 @@ async function buscarSolicitacoesUsuario(usuarioId) {
   }
 }
 
-// ... outras funções para operações com certidões
-
 module.exports = {
   criarCertidao,
-  buscarSolicitacoesUsuario /* ... outras funções */,
+  buscarSolicitacoesUsuario,
 };
