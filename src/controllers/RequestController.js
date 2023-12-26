@@ -92,6 +92,10 @@ const RequestController = {
 
       if (user.role === "admin") {
         request = await Request.findByPk(request_id);
+        await request?.destroy();
+        return res
+          .status(200)
+          .json({ message: "Request deleted successfully" });
       } else {
         request = await Request.findOne({
           where: { id: request_id, user_id },

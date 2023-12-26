@@ -6,7 +6,7 @@ const RequestController = require("../controllers/RequestController");
 
 router.post(
   "/:user_id/request-certificate",
-  authService.isAdmin,
+  authService.authorize,
   RequestController.solicitarEmissaoCertidao
 );
 
